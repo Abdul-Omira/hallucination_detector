@@ -1,6 +1,6 @@
 # Hallucination Detector
 
-Pragmatic guardrails for AI agent outputs — small, predictable, and easy to wire into CLIs, backends, or batch evaluators.
+LLM hallucination guardrails for Python and CLI — deterministic, pluggable, JSON‑first output validation (overconfidence, numeric claims, JSON Schema).
 
 [![CI](https://github.com/Abdul-Omira/hallucination_detector/actions/workflows/ci.yml/badge.svg)](https://github.com/Abdul-Omira/hallucination_detector/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
@@ -13,6 +13,19 @@ Pragmatic guardrails for AI agent outputs — small, predictable, and easy to wi
 - Simple: a few pure functions; zero heavy dependencies by default.
 - Extensible: plug your own detectors; optional JSON Schema validation.
 - Production‑friendly: CLI, Python API, CI templates, and tests.
+
+## Table of contents
+- [Try in 60 seconds](#try-in-60-seconds)
+- [Features](#features)
+- [CLI usage](#cli-usage)
+- [Examples](#examples)
+- [Python API](#python-api)
+- [Design principles](#design-principles)
+- [Development](#development)
+- [Coverage](#coverage)
+- [Contributing](#-contributing)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 If this is useful, please star the repo — it helps a lot!
 
@@ -136,8 +149,13 @@ res = detect_text('{"x":"has TODO"}', checks=checks)
 
 ## Development
 - Tests: `pytest -q` (install `[schema]` extra to run schema tests)
+- Coverage: `pytest -q --cov=src/hallucination_detector --cov-report=xml --cov-report=term-missing`
 - Lint/format/type: `ruff check .`, `black --check .`, `isort . --check-only`, `mypy src tests`
 - Build: `pip install build && python -m build`
+
+## Coverage
+- CI uses `pytest-cov` to generate `coverage.xml` and uploads via [codecov/codecov-action](.github/workflows/ci.yml).
+- To enable repository coverage dashboards and PR checks, add a `CODECOV_TOKEN` secret in GitHub and re-run CI.
 
 ---
 
