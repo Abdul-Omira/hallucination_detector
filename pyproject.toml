@@ -9,6 +9,24 @@ description = "Lightweight detection and remediation layer for AI agent hallucin
 authors = [{name="Abdulwahab Omira"}]
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
+keywords = [
+  "llm", "hallucination", "guardrails", "validation",
+  "jsonschema", "cli", "ai", "safety", "python"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = []
 
 [project.optional-dependencies]
@@ -60,3 +78,14 @@ mypy_path = ["src"]
 [[tool.mypy.overrides]]
 module = ["jsonschema", "jsonschema.*", "pytest"]
 ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["src/hallucination_detector"]
+concurrency = ["multiprocessing"]
+dynamic_context = "test"
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

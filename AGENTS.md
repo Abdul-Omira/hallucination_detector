@@ -1,0 +1,20 @@
+- Project: Python package (src layout) with CLI `hd`.
+- Python: requires 3.10+ (CI runs 3.11).
+- Install dev: `pip install -e . pytest`.
+- Run tests: `pytest -q`.
+- Run single test: `pytest tests/test_detector.py::test_invalid_json -q`.
+- Run subset: `pytest -k "json" -q`.
+- CLI usage: `hd detect --text '{"a":1}'`.
+- Lint: no configured linter; if available run `ruff check .`.
+- Format: prefer `black .` (88 cols) and `isort .` imports.
+- Types: annotate public functions; use `typing`/`dataclasses`; prefer `X | None`.
+- Imports: stdlib, third‑party, then local; absolute imports; no wildcards.
+- Naming: snake_case funcs/vars, PascalCase classes, UPPER_SNAKE constants.
+- Errors: library code shouldn’t print; return `Detection` or raise specific exceptions; only catch broad exceptions at CLI boundaries.
+- Detection semantics: `severity` is `info|warn|block`; `block` overrides; accumulate `reasons` deterministically.
+- JSON handling: parsing errors must include reason `invalid_json`.
+- Logging/IO: CLI prints JSON only; avoid extra stdout noise in library code.
+- Tests: arrange/act/assert style; put new tests in `tests/` named `test_*.py`.
+- Build package: `pip install build && python -m build`.
+- Pre-commit: none; run lint/format locally before PR if tools installed.
+- Cursor/Copilot rules: none present in repo at time of writing.
