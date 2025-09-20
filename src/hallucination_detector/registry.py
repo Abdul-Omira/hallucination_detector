@@ -1,9 +1,21 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Callable, Dict, Iterable, List, Mapping, Sequence
+from typing import (
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Sequence,
+)
 
-from .detector import Detection, Severity, guard_json, guard_overconfidence, guard_numeric_claims
+from .detector import (
+    Detection,
+    Severity,
+    guard_json,
+    guard_numeric_claims,
+    guard_overconfidence,
+)
 
 # User-defined detectors registry (in insertion order)
 _USER_DETECTORS: "OrderedDict[str, Callable[[str], Detection]]" = OrderedDict()
@@ -43,7 +55,11 @@ def list_detectors(include_builtin: bool = True) -> List[str]:
     return names
 
 
-def _wrap_with_severity(name: str, fn: Callable[[str], Detection], target: Severity) -> Callable[[str], Detection]:
+def _wrap_with_severity(
+    name: str,
+    fn: Callable[[str], Detection],
+    target: Severity,
+) -> Callable[[str], Detection]:
     order = {"info": 0, "warn": 1, "block": 2}
 
     def wrapped(text: str) -> Detection:
@@ -52,7 +68,12 @@ def _wrap_with_severity(name: str, fn: Callable[[str], Detection], target: Sever
             current = res.severity
             new = current if order[current] >= order[target] else target
             if new is not current:
-                return Detection(ok=res.ok, reasons=list(res.reasons), severity=new, patches=res.patches)
+                return Detection(
+                    ok=res.ok,
+                    reasons=list(res.reasons),
+                    severity=new,
+                    patches=res.patches,
+                )
         return res
 
     return wrapped
