@@ -11,12 +11,12 @@ Live checklist of work to make this package robust and best‑in‑class. I will
 - [x] CLI: exit codes (0 ok, 1 warn, 2 block)
 - [x] Tests: detectors (json, overconfidence), aggregation, severity
 - [x] Tests: CLI (text/file/stdin, pretty, exit codes)
-- [ ] Tooling: add ruff/black/isort/mypy configs (no new deps required to run)
-- [ ] CI: run lint, type‑check, tests (extend existing workflow)
+- [x] Tooling: add ruff/black/isort/mypy configs (no new deps required to run)
+- [x] CI: run lint, type‑check, tests (extend existing workflow)
 
 ## Phase 2 — Capability & extensibility
-- [ ] Numeric claims detector (reuses existing FACT_PATTERN)
-- [ ] Optional JSON Schema validation (extra dependency)
+- [x] Numeric claims detector (reuses existing FACT_PATTERN)
+- [x] Optional JSON Schema validation (extra dependency)
 - [ ] Plugin registry: pluggable detectors + configuration
 
 ## Phase 3 — Quality & distribution
