@@ -1,10 +1,12 @@
 import json
+
 import pytest
 
 
 def _has_jsonschema():
     try:
         import jsonschema  # noqa: F401
+
         return True
     except Exception:
         return False
@@ -12,11 +14,18 @@ def _has_jsonschema():
 
 @pytest.mark.skipif(not _has_jsonschema(), reason="jsonschema not installed")
 def test_schema_validator_caching():
-    from hallucination_detector.detector import make_schema_guard, _VALIDATOR_CACHE  # type: ignore[attr-defined]
+    from hallucination_detector.detector import (  # type: ignore[attr-defined]
+        _VALIDATOR_CACHE,
+        make_schema_guard,
+    )
 
     # Clear cache (if present)
     _VALIDATOR_CACHE.clear()
-    schema = {"type": "object", "properties": {"a": {"type": "number"}}, "required": ["a"]}
+    schema = {
+        "type": "object",
+        "properties": {"a": {"type": "number"}},
+        "required": ["a"],
+    }
 
     # First build populates cache
     g1 = make_schema_guard(schema)
@@ -36,10 +45,15 @@ def test_schema_validator_caching():
 
 @pytest.mark.skipif(not _has_jsonschema(), reason="jsonschema not installed")
 def test_clear_schema_cache_helper():
-    from hallucination_detector.detector import make_schema_guard
     from hallucination_detector import clear_schema_cache
-    
-    schema = {"type": "object", "properties": {"a": {"type": "number"}}, "required": ["a"]}
+    from hallucination_detector.detector import make_schema_guard
+
+    schema = {
+        "type": "object",
+        "properties": {"a": {"type": "number"}},
+        "required": ["a"],
+    }
+
     # build once
     _ = make_schema_guard(schema)
     # clear via API

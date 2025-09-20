@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,7 +24,15 @@ jobs:
       - name: Mypy (type check)
         run: mypy --python-version ${{ matrix.python-version }} src tests
       - name: Pytest + Coverage
-        run: pytest -q --cov=src/hallucination_detector --cov-report=term-missing
+        run: pytest -q --cov=src/hallucination_detector --cov-report=xml --cov-report=term-missing
+      - name: Upload coverage to Codecov
+        if: ${{ always() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unit
+          fail_ci_if_error: false
 
   schema:
     name: Schema tests (jsonschema extra)
