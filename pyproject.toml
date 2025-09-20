@@ -56,3 +56,7 @@ no_implicit_optional = true
 pretty = true
 show_error_codes = true
 mypy_path = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["jsonschema", "jsonschema.*"]
+ignore_missing_imports = true
