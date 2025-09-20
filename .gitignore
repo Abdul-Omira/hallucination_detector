@@ -14,9 +14,18 @@ build/
 
 # Env
 .env
+.venv/
 
 # App data
 site/data/metrics.json
 
+# Build metadata
+src/hallucination_detector.egg-info/
+
+# Internal working dirs
+_rewrite/
+rewrite/
+
+# Do not track internal planning files
 PLAN.md
 AGENTS.md
