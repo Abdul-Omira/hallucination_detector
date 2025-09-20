@@ -84,7 +84,7 @@ branch = true
 parallel = true
 source = ["src/hallucination_detector"]
 concurrency = ["multiprocessing"]
-dynamic_context = "test"
+dynamic_context = "test_function"
 
 [tool.coverage.report]
 show_missing = true
