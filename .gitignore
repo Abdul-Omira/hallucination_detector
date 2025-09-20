@@ -17,3 +17,6 @@ build/
 
 # App data
 site/data/metrics.json
+
+PLAN.md
+AGENTS.md
