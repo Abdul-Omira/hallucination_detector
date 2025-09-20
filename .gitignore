@@ -1,0 +1,19 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# OS files
+.DS_Store
+site/.DS_Store
+.github/.DS_Store
+
+# Test & build
+.pytest_cache/
+dist/
+build/
+
+# Env
+.env
+
+# App data
+site/data/metrics.json

@@ -1,0 +1,15 @@
+
+[project]
+name = "hallucination-detector"
+version = "0.0.1"
+description = "Lightweight detection and remediation layer for AI agent hallucinations"
+authors = [{name="Abdulwahab Omira"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+hd = "hallucination_detector.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
