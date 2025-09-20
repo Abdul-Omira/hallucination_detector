@@ -8,14 +8,22 @@ import tempfile
 def _run_cli(args, input_text=None):
     env = os.environ.copy()
     # Ensure src is importable for the module invocation
-    env["PYTHONPATH"] = os.path.join(os.getcwd(), "src") + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = (
+        os.path.join(os.getcwd(), "src") + os.pathsep + env.get("PYTHONPATH", "")
+    )
     cmd = [sys.executable, "-m", "hallucination_detector.cli", "detect"] + args
-    proc = subprocess.run(cmd, input=input_text.encode() if isinstance(input_text, str) else input_text, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.run(
+        cmd,
+        input=input_text.encode() if isinstance(input_text, str) else input_text,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     return proc.returncode, proc.stdout.decode().strip()
 
 
 def test_cli_text_ok():
-    code, out = _run_cli(["--text", "{\"a\":1}"])
+    code, out = _run_cli(["--text", '{"a":1}'])
     assert code == 0
     data = json.loads(out)
     assert data["ok"] is True

@@ -1,2 +1,10 @@
-from .detector import detect_text, Detection, make_schema_guard, SchemaValidationUnavailable, InvalidSchema, clear_schema_cache
-from .registry import register_detector, clear_registry, list_detectors, build_checks
+from .detector import Detection as Detection
+from .detector import InvalidSchema as InvalidSchema
+from .detector import SchemaValidationUnavailable as SchemaValidationUnavailable
+from .detector import clear_schema_cache as clear_schema_cache
+from .detector import detect_text as detect_text
+from .detector import make_schema_guard as make_schema_guard
+from .registry import build_checks as build_checks
+from .registry import clear_registry as clear_registry
+from .registry import list_detectors as list_detectors
+from .registry import register_detector as register_detector

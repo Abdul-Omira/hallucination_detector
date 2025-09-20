@@ -58,5 +58,5 @@ show_error_codes = true
 mypy_path = ["src"]
 
 [[tool.mypy.overrides]]
-module = ["jsonschema", "jsonschema.*"]
+module = ["jsonschema", "jsonschema.*", "pytest"]
 ignore_missing_imports = true

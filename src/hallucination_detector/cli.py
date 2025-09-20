@@ -1,10 +1,16 @@
 import argparse
 import json
 import sys
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional, cast
 
-from .detector import detect_text, make_schema_guard, SchemaValidationUnavailable, InvalidSchema
 from . import registry
+from .detector import (
+    InvalidSchema,
+    SchemaValidationUnavailable,
+    Severity,
+    detect_text,
+    make_schema_guard,
+)
 
 
 def _read_input(text: Optional[str], file: Optional[str]) -> str:
@@ -24,6 +30,7 @@ def _read_input(text: Optional[str], file: Optional[str]) -> str:
 def _jsonschema_available() -> bool:
     try:
         import jsonschema  # type: ignore  # noqa: F401
+
         return True
     except Exception:
         return False
@@ -67,11 +74,35 @@ def main():
     d = sub.add_parser("detect", help="Detect issues in a text blob")
     d.add_argument("--text", help="Text to check (often JSON)")
     d.add_argument("--file", help="File path to read (use '-' for stdin)")
-    d.add_argument("--schema", help="JSON Schema file path (enables schema validation)")
-    d.add_argument("--schema-severity", choices=["warn", "block"], default="block", help="Severity when schema validation fails")
-    d.add_argument("--include", action="append", help="Comma-separated detector names to include (order respected)")
-    d.add_argument("--exclude", action="append", help="Comma-separated detector names to exclude")
-    d.add_argument("--severity", dest="severity_overrides", action="append", help="Per-detector severity override entries like 'name=warn|block' (repeatable or comma-separated)")
+    d.add_argument(
+        "--schema",
+        help="JSON Schema file path (enables schema validation)",
+    )
+    d.add_argument(
+        "--schema-severity",
+        choices=["warn", "block"],
+        default="block",
+        help="Severity when schema validation fails",
+    )
+    d.add_argument(
+        "--include",
+        action="append",
+        help="Comma-separated detector names to include (order respected)",
+    )
+    d.add_argument(
+        "--exclude",
+        action="append",
+        help="Comma-separated detector names to exclude",
+    )
+    d.add_argument(
+        "--severity",
+        dest="severity_overrides",
+        action="append",
+        help=(
+            "Per-detector severity override entries like "
+            "'name=warn|block' (repeatable or comma-separated)"
+        ),
+    )
     d.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
 
     args = p.parse_args()
@@ -80,39 +111,85 @@ def main():
         data = _read_input(args.text, args.file)
 
         checks = None
-        # If schema is provided, we prioritize schema validation and ignore registry flags
+        # If schema is provided, we prioritize schema validation
+        # and ignore registry flags
         if args.schema:
             if not _jsonschema_available():
-                print(json.dumps({"ok": False, "reasons": ["schema_validation_unavailable"], "severity": "warn"}), flush=True)
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "reasons": ["schema_validation_unavailable"],
+                            "severity": "warn",
+                        }
+                    ),
+                    flush=True,
+                )
                 raise SystemExit(1)
             try:
                 with open(args.schema, "r", encoding="utf-8") as f:
                     schema = json.load(f)
             except Exception:
-                print(json.dumps({"ok": False, "reasons": ["invalid_schema"], "severity": "block"}), flush=True)
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "reasons": ["invalid_schema"],
+                            "severity": "block",
+                        }
+                    ),
+                    flush=True,
+                )
                 raise SystemExit(2)
             try:
-                schema_guard = make_schema_guard(schema, severity=args.schema_severity)  # type: ignore[arg-type]
+                schema_guard = make_schema_guard(
+                    schema, severity=args.schema_severity  # type: ignore[arg-type]
+                )
                 checks = [schema_guard]
             except SchemaValidationUnavailable:
-                print(json.dumps({"ok": False, "reasons": ["schema_validation_unavailable"], "severity": "warn"}), flush=True)
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "reasons": ["schema_validation_unavailable"],
+                            "severity": "warn",
+                        }
+                    ),
+                    flush=True,
+                )
                 raise SystemExit(1)
             except InvalidSchema:
-                print(json.dumps({"ok": False, "reasons": ["invalid_schema"], "severity": "block"}), flush=True)
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "reasons": ["invalid_schema"],
+                            "severity": "block",
+                        }
+                    ),
+                    flush=True,
+                )
                 raise SystemExit(2)
         else:
             # Build checks from registry based on CLI flags if any were provided
             include = _split_csv(getattr(args, "include", None))
             exclude = _split_csv(getattr(args, "exclude", None))
-            sev_map = _parse_severity_overrides(getattr(args, "severity_overrides", None))
+            sev_map = _parse_severity_overrides(
+                getattr(args, "severity_overrides", None)
+            )
             if include or exclude or sev_map:
+                # Cast CLI-parsed strings into the Severity literal type mapping
+                sev_map_typed = cast(Dict[str, Severity], sev_map)
                 checks = registry.build_checks(
                     include=include or None,
                     exclude=exclude or None,
-                    severity_overrides=sev_map or None,
+                    severity_overrides=sev_map_typed or None,
                 )
 
-        res = detect_text(data, checks=checks) if checks is not None else detect_text(data)
+        if checks is not None:
+            res = detect_text(data, checks=checks)
+        else:
+            res = detect_text(data)
         payload = res.__dict__
         if args.pretty:
             print(json.dumps(payload, indent=2))
