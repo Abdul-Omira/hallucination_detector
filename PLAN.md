@@ -17,11 +17,11 @@ Live checklist of work to make this package robust and best‑in‑class. I will
 ## Phase 2 — Capability & extensibility
 - [x] Numeric claims detector (reuses existing FACT_PATTERN)
 - [x] Optional JSON Schema validation (extra dependency)
-- [ ] Plugin registry: pluggable detectors + configuration
+- [x] Plugin registry: pluggable detectors + configuration
 
 ## Phase 3 — Quality & distribution
 - [ ] Evaluation harness + basic metrics
-- [ ] Docs: README examples, architecture, contributing
+- [x] Docs: README examples, architecture, contributing
 - [ ] Release workflow (tags → build → GitHub Release)
 
 Progress updates will be added inline by ticking boxes and annotating changes as they land.

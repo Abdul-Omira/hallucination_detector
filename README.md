@@ -6,7 +6,7 @@ Pragmatic guardrails for AI agent outputs — small, predictable, and easy to wi
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing) [![codecov](https://codecov.io/gh/Abdul-Omira/hallucination_detector/branch/main/graph/badge.svg)](https://codecov.io/gh/Abdul-Omira/hallucination_detector)
 
 ## Why this exists
 - Deterministic results: stable reason order, de‑duped, severity escalation (`info < warn < block`).
@@ -70,6 +70,12 @@ hd detect --text '{"x":"definitely 95%"}' --severity overconfidence=block,numeri
 # (optional) pip install -e .[schema]
 hd detect --text '{}' --schema schema.json --schema-severity warn
 ```
+
+## Examples
+- Custom detector via registry: `examples/custom_detector.py`
+- JSON Schema validation demo: `examples/json_schema_validation.py`
+- More commands: see `examples/README.md`
+
 
 ---
 
@@ -141,6 +147,7 @@ Contributions are very welcome — issues, examples, docs, and detectors!
 - Good first steps: improve docs, add detector examples, expand tests.
 - Run locally: `pip install -e .[dev]` then `pytest -q`.
 - Open a PR from a feature branch; CI runs lint, type checks, and tests.
+- See CONTRIBUTING.md for details.
 
 If you like this project, please star it. It helps others discover it.
 
