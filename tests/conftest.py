@@ -1,3 +1,4 @@
+import os
 import pathlib
 import sys
 
@@ -7,14 +8,16 @@ def pytest_sessionstart(session):
     src = root / "src"
     if str(src) not in sys.path:
         sys.path.insert(0, str(src))
-    try:
-        # Monkeypatch detector for tests in this process
-        from typing import Any, cast
 
-        import hallucination_detector.detector as det
-        from hallucination_detector import _detector_new as new
+    # Optional: allow testing against the experimental detector implementation
+    # Opt-in via env var to keep default coverage focused on the stable path
+    if os.getenv("HD_USE_EXPERIMENTAL_DETECTOR"):
+        try:
+            from typing import Any, cast
 
-        # Allow assignment across compatible signatures for tests
-        det.detect_text = cast(Any, new.detect_text)
-    except Exception:
-        pass
+            import hallucination_detector.detector as det
+            from hallucination_detector import _detector_new as new
+
+            det.detect_text = cast(Any, new.detect_text)
+        except Exception:
+            pass

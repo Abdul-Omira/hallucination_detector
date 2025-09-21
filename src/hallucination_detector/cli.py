@@ -21,8 +21,9 @@ def _read_input(text: Optional[str], file: Optional[str]) -> str:
             return f.read()
     if text is not None:
         return text
-    # Fallback: read from stdin if available
-    if not sys.stdin.isatty():
+    # Fallback: read from stdin if available (treat missing isatty as non-tty)
+    isatty = getattr(sys.stdin, "isatty", None)
+    if not isatty or (callable(isatty) and not isatty()):
         return sys.stdin.read()
     raise SystemExit(64)
 

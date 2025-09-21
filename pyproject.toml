@@ -89,3 +89,6 @@ dynamic_context = "test_function"
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+omit = [
+  "src/hallucination_detector/_detector_new.py",
+]
