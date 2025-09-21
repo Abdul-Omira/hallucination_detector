@@ -79,10 +79,13 @@ def test_inprocess_schema_guard_unavailable_branch(monkeypatch, capsys, tmp_path
     schema_path = tmp_path / "schema.json"
     schema_path.write_text("{}", encoding="utf-8")
 
-    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", str(schema_path)]) 
+    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", str(schema_path)])
     assert code == 1
     data = json.loads(capsys.readouterr().out)
-    assert data["severity"] == "warn" and "schema_validation_unavailable" in data["reasons"]
+    assert (
+        data["severity"] == "warn"
+        and "schema_validation_unavailable" in data["reasons"]
+    )
 
 
 def test_jsonschema_available_helper_paths(monkeypatch):

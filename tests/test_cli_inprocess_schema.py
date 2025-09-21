@@ -43,7 +43,9 @@ def test_inprocess_schema_valid_ok(tmp_path, capsys):
             }
         )
     )
-    code = run_main_argv(["hd", "detect", "--text", '{"a":1}', "--schema", str(schema_path)])
+    code = run_main_argv(
+        ["hd", "detect", "--text", '{"a":1}', "--schema", str(schema_path)]
+    )
     assert code == 0
     assert json.loads(capsys.readouterr().out)["ok"] is True
 

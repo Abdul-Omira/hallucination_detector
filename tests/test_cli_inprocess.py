@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from hallucination_detector import cli
-from hallucination_detector.detector import InvalidSchema, SchemaValidationUnavailable
+from hallucination_detector.detector import SchemaValidationUnavailable
 
 
 def run_main_argv(argv, stdin_text=None):
@@ -43,7 +43,8 @@ def test_inprocess_text_warn_and_pretty(capsys):
 
 
 def test_inprocess_stdin_fallback_reads_when_no_tty(capsys):
-    # No flags -> read from stdin because our _read_input treats missing isatty as non-tty
+    # No flags -> read from stdin
+    # Our _read_input treats missing isatty as non-tty
     code = run_main_argv(["hd", "detect"], stdin_text='{"a":1}')
     assert code == 0
     assert json.loads(capsys.readouterr().out)["ok"] is True
@@ -72,16 +73,22 @@ def test_inprocess_include_exclude_and_severity(capsys):
     )
     assert code == 2
     data = json.loads(capsys.readouterr().out)
-    assert data["severity"] == "block" and "numeric_claims_without_citation" in data["reasons"]
+    assert (
+        data["severity"] == "block"
+        and "numeric_claims_without_citation" in data["reasons"]
+    )
 
 
 def test_inprocess_schema_unavailable_warns(capsys, monkeypatch):
     # Force the "schema unavailable" branch irrespective of the environment
     monkeypatch.setattr(cli, "_jsonschema_available", lambda: False)
-    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", "x.json"]) 
+    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", "x.json"])
     assert code == 1
     data = json.loads(capsys.readouterr().out)
-    assert data["severity"] == "warn" and "schema_validation_unavailable" in data["reasons"]
+    assert (
+        data["severity"] == "warn"
+        and "schema_validation_unavailable" in data["reasons"]
+    )
 
 
 def test_inprocess_file_path_reads_warns(capsys):
@@ -134,7 +141,10 @@ def test_inprocess_schema_make_guard_unavailable_branch(monkeypatch, capsys, tmp
     code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", str(schema_path)])
     assert code == 1
     data = json.loads(capsys.readouterr().out)
-    assert data["severity"] == "warn" and "schema_validation_unavailable" in data["reasons"]
+    assert (
+        data["severity"] == "warn"
+        and "schema_validation_unavailable" in data["reasons"]
+    )
 
 
 @pytest.mark.skipif(
@@ -145,7 +155,7 @@ def test_inprocess_schema_make_guard_unavailable_branch(monkeypatch, capsys, tmp
 )
 @pytest.mark.skipif(
     not (lambda: __import__("json").loads('{"type":"object"}') is not None)(),
-    reason="json module unavailable"  # practically always available
+    reason="json module unavailable",  # practically always available
 )
 def test_inprocess_schema_invalid_schema_branch(tmp_path, capsys):
     # Provide a syntactically valid but semantically invalid schema
