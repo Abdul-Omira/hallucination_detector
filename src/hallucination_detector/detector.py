@@ -66,9 +66,7 @@ def guard_overconfidence(text: str) -> Detection:
             False,
             ["overconfident_no_citations"],
             "warn",
-            {
-                "suggestion": "Add a citation link (e.g., https://example.com) to support the claim."
-            },
+            {"suggestion": "Add a citation link to support the claim."},
         )
     return Detection(True, [])
 
