@@ -2,7 +2,10 @@ from .detector import Detection as Detection
 from .detector import InvalidSchema as InvalidSchema
 from .detector import SchemaValidationUnavailable as SchemaValidationUnavailable
 from .detector import clear_schema_cache as clear_schema_cache
+from .detector import detect_batch as detect_batch
 from .detector import detect_text as detect_text
+from .detector import generate_report as generate_report
+from .detector import load_custom_rules as load_custom_rules
 from .detector import make_schema_guard as make_schema_guard
 from .detector import set_confident_keywords as set_confident_keywords
 from .registry import build_checks as build_checks

@@ -112,6 +112,8 @@ def main():
         "--verbose", action="store_true", help="Include verbose details in output"
     )
     d.add_argument("--rules", help="Path to YAML/JSON file with custom rules")
+    d.add_argument("--batch", action="store_true", help="Process batch of texts from stdin (one per line)")
+    d.add_argument("--report", choices=["json", "html"], help="Generate summary report in JSON or HTML")
 
     args = p.parse_args()
 
@@ -199,21 +201,52 @@ def main():
                     severity_overrides=sev_map_typed or None,
                 )
 
-        if checks is not None:
-            res = detect_text(data, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
+        if args.batch:
+            import sys
+            texts = []
+            for line in sys.stdin:
+                stripped = line.strip()
+                if stripped:
+                    texts.append(stripped)
+            from hallucination_detector.detector import detect_batch
+            results = detect_batch(texts, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
+            if args.report:
+                from hallucination_detector.detector import generate_report
+                output = generate_report(results, args.report)
+                print(output)
+            else:
+                payload = [r.__dict__ for r in results]
+                if args.pretty:
+                    print(json.dumps(payload, indent=2))
+                else:
+                    print(json.dumps(payload, separators=(",", ":")))
+            code = 1 if any(not r.ok for r in results) else 0
         else:
-            res = detect_text(data, skip_json=args.skip_json, custom_rules=custom_rules)
-        payload = res.__dict__
-        if args.verbose:
-            print(f"Input length: {len(data)} characters", file=sys.stderr)
-            if not res.ok:
-                print(f"Issues detected: {', '.join(res.reasons)}", file=sys.stderr)
-        if args.pretty:
-            print(json.dumps(payload, indent=2))
-        else:
-            print(json.dumps(payload, separators=(",", ":")))
-        # Exit codes: 0 ok, 1 warn (not ok), 2 block
-        code = 2 if res.severity == "block" else (1 if not res.ok else 0)
+            if checks is not None:
+                res = detect_text(data, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
+            else:
+                res = detect_text(data, skip_json=args.skip_json, custom_rules=custom_rules)
+            if args.report:
+                from hallucination_detector.detector import generate_report
+                output = generate_report([res], args.report)
+                print(output)
+            else:
+                payload = res.__dict__
+                if args.pretty:
+                    print(json.dumps(payload, indent=2))
+                else:
+                    print(json.dumps(payload, separators=(",", ":")))
+            code = 2 if res.severity == "block" else (1 if not res.ok else 0)
+        if args.verbose and not args.report:
+            if args.batch:
+                print(f"Processed {len(texts)} texts", file=sys.stderr)
+                if not all(r.ok for r in results):
+                    issues = sum(len(r.reasons) for r in results if not r.ok)
+                    print(f"Issues detected in {issues} cases", file=sys.stderr)
+            else:
+                print(f"Input length: {len(data)} characters", file=sys.stderr)
+                if not res.ok:
+                    print(f"Issues detected: {', '.join(res.reasons)}", file=sys.stderr)
         raise SystemExit(code)
 
     p.print_help()
