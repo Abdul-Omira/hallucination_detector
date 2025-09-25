@@ -10,6 +10,15 @@ from hallucination_detector import cli
 from hallucination_detector.detector import SchemaValidationUnavailable
 
 
+def _has_jsonschema():
+    try:
+        import jsonschema  # noqa: F401
+
+        return True
+    except Exception:
+        return False
+
+
 def run_main_argv(argv, stdin_text=None):
     old_argv = sys.argv[:]
     old_stdin = sys.stdin
@@ -56,6 +65,7 @@ def test_inprocess_no_input_exit_64():
         sys.argv = old_argv
 
 
+@pytest.mark.skipif(not _has_jsonschema(), reason="jsonschema not installed")
 def test_inprocess_schema_invalid_schema_branch(tmp_path, capsys):
     # Provide a syntactically valid but semantically invalid schema
     schema_path = tmp_path / "schema.json"

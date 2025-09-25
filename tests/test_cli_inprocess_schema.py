@@ -87,3 +87,14 @@ def test_inprocess_invalid_schema_file_block(tmp_path, capsys):
     assert code == 2
     data = json.loads(capsys.readouterr().out)
     assert data["severity"] == "block" and "invalid_schema" in data["reasons"]
+
+
+@pytest.mark.skipif(not _has_jsonschema(), reason="jsonschema not installed")
+def test_inprocess_schema_invalid_schema_branch(tmp_path, capsys):
+    # Provide a syntactically valid but semantically invalid schema
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps({"type": "not-a-real-type"}), encoding="utf-8")
+    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", str(schema_path)])
+    assert code == 2
+    data = json.loads(capsys.readouterr().out)
+    assert data["severity"] == "block" and "invalid_schema" in data["reasons"]

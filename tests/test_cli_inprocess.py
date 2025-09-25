@@ -11,6 +11,15 @@ from hallucination_detector import cli
 from hallucination_detector.detector import SchemaValidationUnavailable
 
 
+def _has_jsonschema():
+    try:
+        import jsonschema  # noqa: F401
+
+        return True
+    except Exception:
+        return False
+
+
 def run_main_argv(argv, stdin_text=None):
     old_argv = sys.argv[:]
     old_stdin = sys.stdin
@@ -145,26 +154,6 @@ def test_inprocess_schema_make_guard_unavailable_branch(monkeypatch, capsys, tmp
         data["severity"] == "warn"
         and "schema_validation_unavailable" in data["reasons"]
     )
-
-
-@pytest.mark.skipif(
-    not hasattr(cli, "make_schema_guard"), reason="cli.make_schema_guard not available"
-)
-@pytest.mark.skipif(
-    not hasattr(sys, "modules"), reason="environment lacks monkeypatch capability"
-)
-@pytest.mark.skipif(
-    not (lambda: __import__("json").loads('{"type":"object"}') is not None)(),
-    reason="json module unavailable",  # practically always available
-)
-def test_inprocess_schema_invalid_schema_branch(tmp_path, capsys):
-    # Provide a syntactically valid but semantically invalid schema
-    schema_path = tmp_path / "schema.json"
-    schema_path.write_text(json.dumps({"type": "not-a-real-type"}), encoding="utf-8")
-    code = run_main_argv(["hd", "detect", "--text", "{}", "--schema", str(schema_path)])
-    assert code == 2
-    data = json.loads(capsys.readouterr().out)
-    assert data["severity"] == "block" and "invalid_schema" in data["reasons"]
 
 
 def test_module_entrypoint_executes_main(capsys, monkeypatch):
