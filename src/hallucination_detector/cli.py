@@ -1,4 +1,6 @@
 import argparse
+import argparse
+import importlib.metadata
 import json
 import sys
 from typing import Dict, List, Optional, cast
@@ -69,7 +71,13 @@ def _parse_severity_overrides(pairs: Optional[List[str]]) -> Dict[str, str]:
 
 
 def main():
+    try:
+        version = importlib.metadata.version("hallucination-detector")
+    except importlib.metadata.PackageNotFoundError:
+        version = "0.0.1"  # Fallback for development
+
     p = argparse.ArgumentParser(prog="hd", description="Hallucination Detector CLI")
+    p.add_argument("--version", action="version", version=f"hallucination-detector {version}")
     sub = p.add_subparsers(dest="cmd")
 
     d = sub.add_parser("detect", help="Detect issues in a text blob")

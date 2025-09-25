@@ -12,7 +12,10 @@ from typing import (
 from .detector import (
     Detection,
     Severity,
+    guard_contradictions,
+    guard_fact_check,
     guard_json,
+    guard_logical_fallacies,
     guard_numeric_claims,
     guard_overconfidence,
 )
@@ -21,13 +24,16 @@ from .detector import (
 _USER_DETECTORS: "OrderedDict[str, Callable[[str], Detection]]" = OrderedDict()
 
 # Built-in detectors and their default order
-_BUILTIN_ORDER: List[str] = ["json", "overconfidence", "numeric_claims"]
+_BUILTIN_ORDER: List[str] = ["json", "overconfidence", "contradictions", "logical_fallacies", "fact_check", "numeric_claims"]
 
 
 def _builtin_detectors() -> Dict[str, Callable[[str], Detection]]:
     return {
         "json": guard_json,
         "overconfidence": guard_overconfidence,
+        "contradictions": guard_contradictions,
+        "logical_fallacies": guard_logical_fallacies,
+        "fact_check": guard_fact_check,
         "numeric_claims": guard_numeric_claims,
     }
 

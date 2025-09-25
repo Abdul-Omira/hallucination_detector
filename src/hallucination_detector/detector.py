@@ -79,11 +79,30 @@ def guard_contradictions(text: str) -> Detection:
         r"yes and no",
         r"positive and negative",
         r"good and bad",
+        r"all and some",
+        r"none and some",
+        r"always and sometimes",
+        r"never and occasionally",
         # Add more as needed
     ]
     for pattern in contradictions:
         if re.search(pattern, text, re.IGNORECASE):
             return Detection(False, ["possible_contradiction"], "warn")
+    return Detection(True, [])
+
+
+def guard_logical_fallacies(text: str) -> Detection:
+    # Simple check for common logical fallacies
+    fallacies = [
+        r"everyone (knows|thinks|agrees)",  # Ad populum
+        r"obviously|clearly|of course",  # Appeal to obviousness (overlaps with overconfidence)
+        r"either.*or.*no.*middle",  # False dichotomy
+        r"you.*because.*you.*are",  # Ad hominem
+        # Add more as needed
+    ]
+    for pattern in fallacies:
+        if re.search(pattern, text, re.IGNORECASE):
+            return Detection(False, ["possible_logical_fallacy"], "info")
     return Detection(True, [])
 
 
@@ -220,6 +239,7 @@ def detect_text(
             guard_json,
             guard_overconfidence,
             guard_contradictions,
+            guard_logical_fallacies,
             guard_fact_check,
             guard_numeric_claims,
         ]
@@ -230,6 +250,7 @@ def detect_text(
         detectors = [
             guard_overconfidence,
             guard_contradictions,
+            guard_logical_fallacies,
             guard_fact_check,
             guard_numeric_claims,
         ] + (list(custom_rules) if custom_rules else [])

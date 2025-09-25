@@ -1,0 +1,1 @@
+{"rules": [{"pattern": "quantum", "severity": "warn", "reason": "quantum_without_sources", "require_citation": true}]}

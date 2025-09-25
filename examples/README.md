@@ -28,7 +28,17 @@ Run:
 python examples/json_schema_validation.py
 ```
 
-## 3) CLI quick tour
+## 3) Logical fallacies detection
+
+Demonstrates detection of common logical fallacies like ad populum or false dichotomy.
+
+Run:
+
+```bash
+python examples/logical_fallacies.py
+```
+
+## 4) CLI quick tour
 
 These mirror README examples; shown here for convenience.
 

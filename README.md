@@ -61,6 +61,9 @@ Exit codes: `0` ok, `1` warn (not ok), `2` block
 ## Features
 - JSON guard: blocks invalid JSON with reason `invalid_json`.
 - Overconfidence guard: warns on phrases like "definitely/certainly/undeniably" without citations.
+- Contradictions guard: detects obvious contradictions like "A > B and B > A" or "true and false".
+- Logical fallacies guard: flags potential fallacies like ad populum or false dichotomy.
+- Fact check guard: warns on unverified "fact" mentions without citations.
 - Numeric claims guard: warns on years/percentages without citations (e.g., "95%", "2024").
 - JSON Schema validation: compile‑once, cached Draft 2020‑12 validators via `make_schema_guard()`.
 - Pluggable registry: include/exclude detectors and escalate severities per detector.
@@ -69,7 +72,7 @@ Exit codes: `0` ok, `1` warn (not ok), `2` block
 
 ## CLI usage
 ```bash
-# Built‑ins (default order): json, overconfidence, numeric_claims
+# Built‑ins (default order): json, overconfidence, contradictions, logical_fallacies, fact_check, numeric_claims
 hd detect --text '{"x":"definitely 95%"}'
 
 # Include/exclude specific detectors
