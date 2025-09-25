@@ -21,8 +21,9 @@ def _read_input(text: Optional[str], file: Optional[str]) -> str:
             return f.read()
     if text is not None:
         return text
-    # Fallback: read from stdin if available
-    if not sys.stdin.isatty():
+    # Fallback: read from stdin if available (treat missing isatty as non-tty)
+    isatty = getattr(sys.stdin, "isatty", None)
+    if not isatty or (callable(isatty) and not isatty()):
         return sys.stdin.read()
     raise SystemExit(64)
 
@@ -104,6 +105,12 @@ def main():
         ),
     )
     d.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
+    d.add_argument(
+        "--skip-json", action="store_true", help="Skip JSON validation (for raw text)"
+    )
+    d.add_argument(
+        "--verbose", action="store_true", help="Include verbose details in output"
+    )
 
     args = p.parse_args()
 
@@ -187,10 +194,14 @@ def main():
                 )
 
         if checks is not None:
-            res = detect_text(data, checks=checks)
+            res = detect_text(data, checks=checks, skip_json=args.skip_json)
         else:
-            res = detect_text(data)
+            res = detect_text(data, skip_json=args.skip_json)
         payload = res.__dict__
+        if args.verbose:
+            print(f"Input length: {len(data)} characters", file=sys.stderr)
+            if not res.ok:
+                print(f"Issues detected: {', '.join(res.reasons)}", file=sys.stderr)
         if args.pretty:
             print(json.dumps(payload, indent=2))
         else:

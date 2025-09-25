@@ -4,6 +4,7 @@ from .detector import SchemaValidationUnavailable as SchemaValidationUnavailable
 from .detector import clear_schema_cache as clear_schema_cache
 from .detector import detect_text as detect_text
 from .detector import make_schema_guard as make_schema_guard
+from .detector import set_confident_keywords as set_confident_keywords
 from .registry import build_checks as build_checks
 from .registry import clear_registry as clear_registry
 from .registry import list_detectors as list_detectors

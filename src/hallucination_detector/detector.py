@@ -22,7 +22,25 @@ class Detection:
     patches: Dict[str, Any] | None = None
 
 
-FACT_PATTERN = re.compile(r"\b(\d{4})\b|\b([0-9]+(?:\.[0-9]+)?)%(?!\w)")
+FACT_PATTERN = re.compile(r"\b\d{4}\b|\b\d{1,3}%(?!\w)")
+
+# Configurable list of overconfidence keywords
+CONFIDENT_KEYWORDS = [
+    "definitely",
+    "certainly",
+    "undeniably",
+    "absolutely",
+    "undoubtedly",
+    "clearly",
+    "obviously",
+]
+
+
+def set_confident_keywords(keywords: List[str]) -> None:
+    """Set the list of keywords that trigger overconfidence detection."""
+    global CONFIDENT_KEYWORDS
+    CONFIDENT_KEYWORDS = keywords
+
 
 # Cache compiled JSON Schema validators by canonicalized schema string
 _VALIDATOR_CACHE: Dict[str, Any] = {}
@@ -41,12 +59,30 @@ def guard_json(text: str) -> Detection:
 
 
 def guard_overconfidence(text: str) -> Detection:
-    confident = any(
-        k in text.lower() for k in ["definitely", "certainly", "undeniably"]
-    )
+    confident = any(k in text.lower() for k in CONFIDENT_KEYWORDS)
     cites = ("http://" in text) or ("https://" in text) or ("doi.org" in text)
     if confident and not cites:
-        return Detection(False, ["overconfident_no_citations"], "warn")
+        return Detection(
+            False,
+            ["overconfident_no_citations"],
+            "warn",
+            {
+                "suggestion": "Add a citation link (e.g., https://example.com) to support the claim."
+            },
+        )
+    return Detection(True, [])
+
+
+def guard_contradictions(text: str) -> Detection:
+    # Simple check for obvious contradictions like "A > B and B > A"
+    contradictions = [
+        r"A > B and B > A",
+        r"true and false",
+        # Add more as needed
+    ]
+    for pattern in contradictions:
+        if re.search(pattern, text, re.IGNORECASE):
+            return Detection(False, ["possible_contradiction"], "warn")
     return Detection(True, [])
 
 
@@ -55,7 +91,12 @@ def guard_numeric_claims(text: str) -> Detection:
     if FACT_PATTERN.search(text):
         cites = ("http://" in text) or ("https://" in text) or ("doi.org" in text)
         if not cites:
-            return Detection(False, ["numeric_claims_without_citation"], "warn")
+            return Detection(
+                False,
+                ["numeric_claims_without_citation"],
+                "warn",
+                {"suggestion": "Add a citation link to verify the numeric claim."},
+            )
     return Detection(True, [])
 
 
@@ -101,9 +142,13 @@ def make_schema_guard(
         try:
             validator.validate(data)  # type: ignore[union-attr]
             return Detection(True, [])
-        except ValidationError:
+        except ValidationError as e:
             sev: Severity = severity
-            return Detection(False, ["schema_validation_failed"], sev)
+            missing = []
+            if hasattr(e, "absolute_path") and e.absolute_path:
+                missing.append(".".join(str(p) for p in e.absolute_path))
+            patches = {"missing_fields": missing} if missing else None
+            return Detection(False, ["schema_validation_failed"], sev, patches)
 
     return guard
 
@@ -111,6 +156,7 @@ def make_schema_guard(
 def detect_text(
     text: str,
     checks: Sequence[Callable[[str], Detection]] | None = None,
+    skip_json: bool = False,
 ) -> Detection:
     detectors = (
         list(checks)
@@ -118,12 +164,16 @@ def detect_text(
         else [
             guard_json,
             guard_overconfidence,
+            guard_contradictions,
             guard_numeric_claims,
         ]
     )
+    if skip_json and checks is None:
+        detectors = [guard_overconfidence, guard_contradictions, guard_numeric_claims]
     reasons: List[str] = []
     seen: Set[str] = set()
     severity: Severity = "info"
+    patches: Dict[str, Any] = {}
     order = {"info": 0, "warn": 1, "block": 2}
     for check in detectors:
         r = check(text)
@@ -134,4 +184,11 @@ def detect_text(
                     reasons.append(reason)
             if order[r.severity] > order[severity]:
                 severity = r.severity
-    return Detection(ok=(len(reasons) == 0), reasons=reasons, severity=severity)
+            if r.patches:
+                patches.update(r.patches)
+    return Detection(
+        ok=(len(reasons) == 0),
+        reasons=reasons,
+        severity=severity,
+        patches=patches or None,
+    )
