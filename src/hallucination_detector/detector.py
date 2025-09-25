@@ -76,6 +76,9 @@ def guard_contradictions(text: str) -> Detection:
     contradictions = [
         r"A > B and B > A",
         r"true and false",
+        r"yes and no",
+        r"positive and negative",
+        r"good and bad",
         # Add more as needed
     ]
     for pattern in contradictions:
