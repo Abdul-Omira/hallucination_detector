@@ -111,11 +111,17 @@ def main():
     d.add_argument(
         "--verbose", action="store_true", help="Include verbose details in output"
     )
+    d.add_argument("--rules", help="Path to YAML/JSON file with custom rules")
 
     args = p.parse_args()
 
     if args.cmd == "detect":
         data = _read_input(args.text, args.file)
+
+        custom_rules = None
+        if args.rules:
+            from hallucination_detector.detector import load_custom_rules
+            custom_rules = load_custom_rules(args.rules)
 
         checks = None
         # If schema is provided, we prioritize schema validation
@@ -194,9 +200,9 @@ def main():
                 )
 
         if checks is not None:
-            res = detect_text(data, checks=checks, skip_json=args.skip_json)
+            res = detect_text(data, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
         else:
-            res = detect_text(data, skip_json=args.skip_json)
+            res = detect_text(data, skip_json=args.skip_json, custom_rules=custom_rules)
         payload = res.__dict__
         if args.verbose:
             print(f"Input length: {len(data)} characters", file=sys.stderr)
