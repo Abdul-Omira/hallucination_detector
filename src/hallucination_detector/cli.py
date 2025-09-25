@@ -112,8 +112,16 @@ def main():
         "--verbose", action="store_true", help="Include verbose details in output"
     )
     d.add_argument("--rules", help="Path to YAML/JSON file with custom rules")
-    d.add_argument("--batch", action="store_true", help="Process batch of texts from stdin (one per line)")
-    d.add_argument("--report", choices=["json", "html"], help="Generate summary report in JSON or HTML")
+    d.add_argument(
+        "--batch",
+        action="store_true",
+        help="Process batch from stdin",
+    )
+    d.add_argument(
+        "--report",
+        choices=["json", "html"],
+        help="Generate summary report",
+    )
 
     args = p.parse_args()
 
@@ -123,6 +131,7 @@ def main():
         custom_rules = None
         if args.rules:
             from hallucination_detector.detector import load_custom_rules
+
             custom_rules = load_custom_rules(args.rules)
 
         checks = None
@@ -203,15 +212,23 @@ def main():
 
         if args.batch:
             import sys
+
             texts = []
             for line in sys.stdin:
                 stripped = line.strip()
                 if stripped:
                     texts.append(stripped)
             from hallucination_detector.detector import detect_batch
-            results = detect_batch(texts, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
+
+            results = detect_batch(
+                texts,
+                checks=checks,
+                skip_json=args.skip_json,
+                custom_rules=custom_rules,
+            )
             if args.report:
                 from hallucination_detector.detector import generate_report
+
                 output = generate_report(results, args.report)
                 print(output)
             else:
@@ -223,11 +240,19 @@ def main():
             code = 1 if any(not r.ok for r in results) else 0
         else:
             if checks is not None:
-                res = detect_text(data, checks=checks, skip_json=args.skip_json, custom_rules=custom_rules)
+                res = detect_text(
+                    data,
+                    checks=checks,
+                    skip_json=args.skip_json,
+                    custom_rules=custom_rules,
+                )
             else:
-                res = detect_text(data, skip_json=args.skip_json, custom_rules=custom_rules)
+                res = detect_text(
+                    data, skip_json=args.skip_json, custom_rules=custom_rules
+                )
             if args.report:
                 from hallucination_detector.detector import generate_report
+
                 output = generate_report([res], args.report)
                 print(output)
             else:

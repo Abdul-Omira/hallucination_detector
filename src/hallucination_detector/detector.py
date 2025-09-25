@@ -94,7 +94,12 @@ def guard_fact_check(text: str) -> Detection:
     if "fact" in text.lower():
         cites = ("http://" in text) or ("https://" in text) or ("doi.org" in text)
         if not cites:
-            return Detection(False, ["unverified_fact"], "warn", {"suggestion": "Verify fact with reliable source."})
+            return Detection(
+                False,
+                ["unverified_fact"],
+                "warn",
+                {"suggestion": "Verify with reliable source."},
+            )
     return Detection(True, [])
 
 
@@ -190,10 +195,11 @@ def load_custom_rules(rules_file: str) -> List[Callable[[str], Detection]]:
         def make_detector(pat=pattern, sev=severity, rea=reason, cit=require_citation):
             def detector(text: str) -> Detection:
                 if re.search(pat, text, re.IGNORECASE):
-                    cites = ("http://" in text) or ("https://" in text) or ("doi.org" in text)
+                    cites = "http://" in text or "https://" in text or "doi.org" in text
                     if not cit or not cites:
                         return Detection(False, [rea], sev)
                 return Detection(True, [])
+
             return detector
 
         detectors.append(make_detector())
@@ -219,9 +225,14 @@ def detect_text(
         ]
     )
     if custom_rules:
-        detectors.extend(custom_rules)
+        detectors.extend(custom_rules)  # type: ignore
     if skip_json and checks is None:
-        detectors = [guard_overconfidence, guard_contradictions, guard_fact_check, guard_numeric_claims] + list(custom_rules or [])
+        detectors = [
+            guard_overconfidence,
+            guard_contradictions,
+            guard_fact_check,
+            guard_numeric_claims,
+        ] + (list(custom_rules) if custom_rules else [])
     reasons: List[str] = []
     seen: Set[str] = set()
     severity: Severity = "info"
@@ -254,8 +265,12 @@ def detect_batch(
 ) -> List[Detection]:
     """Detect on a batch of texts with parallelism."""
     from concurrent.futures import ThreadPoolExecutor
+
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(detect_text, t, checks, skip_json, custom_rules) for t in texts]
+        futures = [
+            executor.submit(detect_text, t, checks, skip_json, custom_rules)
+            for t in texts
+        ]
         return [f.result() for f in futures]
 
 
@@ -278,34 +293,7 @@ def generate_report(results: List[Detection], format: str = "json") -> str:
         "reason_counts": reasons,
     }
     if format == "html":
-        html = f"<h1>Report</h1><p>Total: {total}, OK: {ok}, Warn: {warns}, Block: {blocks}</p><ul>"
-        for reason, count in reasons.items():
-            html += f"<li>{reason}: {count}</li>"
-        html += "</ul>"
-        return html
-    return json.dumps(report, indent=2)
-
-
-def generate_report(results: List[Detection], format: str = "json") -> str:
-    """Generate a summary report."""
-    total = len(results)
-    ok = sum(1 for r in results if r.ok)
-    warns = sum(1 for r in results if not r.ok and r.severity == "warn")
-    blocks = sum(1 for r in results if r.severity == "block")
-    reasons = {}
-    for r in results:
-        for reason in r.reasons:
-            reasons[reason] = reasons.get(reason, 0) + 1
-
-    report = {
-        "total_texts": total,
-        "ok": ok,
-        "warn": warns,
-        "block": blocks,
-        "reason_counts": reasons,
-    }
-    if format == "html":
-        html = f"<h1>Report</h1><p>Total: {total}, OK: {ok}, Warn: {warns}, Block: {blocks}</p><ul>"
+        html = f"<h1>Report</h1><p>Total {total}, OK {ok}, Warn {warns}, Block {blocks}</p><ul>"
         for reason, count in reasons.items():
             html += f"<li>{reason}: {count}</li>"
         html += "</ul>"
