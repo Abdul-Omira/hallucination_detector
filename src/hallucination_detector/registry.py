@@ -23,8 +23,14 @@ from .detector import (
 # User-defined detectors registry (in insertion order)
 _USER_DETECTORS: "OrderedDict[str, Callable[[str], Detection]]" = OrderedDict()
 
-# Built-in detectors and their default order
-_BUILTIN_ORDER: List[str] = ["json", "overconfidence", "contradictions", "logical_fallacies", "fact_check", "numeric_claims"]
+_BUILTIN_ORDER: List[str] = [
+    "json",
+    "overconfidence",
+    "contradictions",
+    "logical_fallacies",
+    "fact_check",
+    "numeric_claims",
+]
 
 
 def _builtin_detectors() -> Dict[str, Callable[[str], Detection]]:

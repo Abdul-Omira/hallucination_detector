@@ -6,7 +6,6 @@ This example demonstrates the logical_fallacies detector,
 which flags potential logical fallacies like ad populum or false dichotomy.
 """
 
-import json
 from hallucination_detector import detect_text
 
 # Example texts with potential fallacies

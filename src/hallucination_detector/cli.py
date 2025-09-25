@@ -1,5 +1,4 @@
 import argparse
-import argparse
 import importlib.metadata
 import json
 import sys
@@ -77,7 +76,7 @@ def main():
         version = "0.0.1"  # Fallback for development
 
     p = argparse.ArgumentParser(prog="hd", description="Hallucination Detector CLI")
-    p.add_argument("--version", action="version", version=f"hallucination-detector {version}")
+    p.add_argument("--version", action="version", version=f"hd {version}")
     sub = p.add_subparsers(dest="cmd")
 
     d = sub.add_parser("detect", help="Detect issues in a text blob")

@@ -95,7 +95,7 @@ def guard_logical_fallacies(text: str) -> Detection:
     # Simple check for common logical fallacies
     fallacies = [
         r"everyone (knows|thinks|agrees)",  # Ad populum
-        r"obviously|clearly|of course",  # Appeal to obviousness (overlaps with overconfidence)
+        r"obviously|clearly|of course",  # Appeal to obviousness
         r"either.*or.*no.*middle",  # False dichotomy
         r"you.*because.*you.*are",  # Ad hominem
         # Add more as needed
@@ -314,7 +314,9 @@ def generate_report(results: List[Detection], format: str = "json") -> str:
         "reason_counts": reasons,
     }
     if format == "html":
-        html = f"<h1>Report</h1><p>Total {total}, OK {ok}, Warn {warns}, Block {blocks}</p><ul>"
+        html = (
+            f"<h1>Report</h1><p>Total {total}, OK {ok}, Warn {warns}, Block {blocks}</p><ul>"
+        )
         for reason, count in reasons.items():
             html += f"<li>{reason}: {count}</li>"
         html += "</ul>"
