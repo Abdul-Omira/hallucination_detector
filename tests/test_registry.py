@@ -17,7 +17,14 @@ def test_registry_default_order_and_registration():
     registry.clear_registry()
     # default order
     names = registry.list_detectors()
-    assert names[:6] == ["json", "overconfidence", "contradictions", "logical_fallacies", "fact_check", "numeric_claims"]
+    assert names[:6] == [
+        "json",
+        "overconfidence",
+        "contradictions",
+        "logical_fallacies",
+        "fact_check",
+        "numeric_claims",
+    ]
 
     # add a custom detector and ensure it comes last by default
     registry.register_detector("custom", make_fail_detector("custom"))
