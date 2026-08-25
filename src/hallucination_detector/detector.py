@@ -315,7 +315,8 @@ def generate_report(results: List[Detection], format: str = "json") -> str:
     }
     if format == "html":
         html = (
-            f"<h1>Report</h1><p>Total {total}, OK {ok}, Warn {warns}, Block {blocks}</p><ul>"
+            f"<h1>Report</h1>"
+            f"<p>Total {total}, OK {ok}, Warn {warns}, Block {blocks}</p><ul>"
         )
         for reason, count in reasons.items():
             html += f"<li>{reason}: {count}</li>"
