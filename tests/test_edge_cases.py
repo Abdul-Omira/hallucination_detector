@@ -75,10 +75,12 @@ def test_cli_dash_stdin_with_warn():
 
 
 def test_cli_text_overrides_file_when_both_provided():
-    with tempfile.NamedTemporaryFile("w+", delete=True) as f:
-        f.write('{"a":2}')
-        f.flush()
-        code, out, err = _run_cli(["--file", f.name, "--text", '{"a":3}'])
+    # Write-then-close so Windows does not hold a write lock during subprocess
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "input.json")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write('{"a":2}')
+        code, out, err = _run_cli(["--file", path, "--text", '{"a":3}'])
         assert code == 0
         assert json.loads(out)["ok"] is True
         # ensure --text used (either is fine since both are valid JSON)
@@ -88,6 +90,7 @@ def test_cli_text_overrides_file_when_both_provided():
 def test_cli_invalid_json_pretty_formatting_still_json_pretty():
     code, out, err = _run_cli(["--text", "not json", "--pretty"])
     assert code == 2
+    out = out.replace("\r\n", "\n")  # platform-independent assertion
     assert out.startswith("{\n  ") and "invalid_json" in out
 
 

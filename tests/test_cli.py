@@ -42,12 +42,14 @@ def test_cli_text_warn():
 
 
 def test_cli_file_and_pretty():
-    with tempfile.NamedTemporaryFile("w+", delete=True) as f:
-        f.write('{"x":"This is definitely true."}')
-        f.flush()
-        code, out = _run_cli(["--file", f.name, "--pretty"])
+    # Write-then-close so Windows does not hold a write lock during subprocess
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "input.json")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write('{"x":"This is definitely true."}')
+        code, out = _run_cli(["--file", path, "--pretty"])
         assert code == 1
-        assert "\n  " in out  # pretty JSON
+        assert "\n  " in out.replace("\r\n", "\n")  # pretty JSON
 
 
 def test_cli_stdin_dash():
