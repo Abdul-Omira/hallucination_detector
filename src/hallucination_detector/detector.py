@@ -194,7 +194,7 @@ def load_custom_rules(rules_file: str) -> List[Callable[[str], Detection]]:
     try:
         import yaml
     except ImportError:
-        yaml = None
+        yaml = None  # type: ignore[assignment]
 
     with open(rules_file, "r", encoding="utf-8") as f:
         if rules_file.endswith(".yaml") or rules_file.endswith(".yml"):
@@ -301,7 +301,7 @@ def generate_report(results: List[Detection], format: str = "json") -> str:
     ok = sum(1 for r in results if r.ok)
     warns = sum(1 for r in results if not r.ok and r.severity == "warn")
     blocks = sum(1 for r in results if r.severity == "block")
-    reasons = {}
+    reasons: dict[str, int] = {}
     for r in results:
         for reason in r.reasons:
             reasons[reason] = reasons.get(reason, 0) + 1

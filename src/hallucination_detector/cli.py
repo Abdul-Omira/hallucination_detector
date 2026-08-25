@@ -263,11 +263,11 @@ def main():
                 output = generate_report([res], args.report)
                 print(output)
             else:
-                payload = res.__dict__
+                res_payload: dict[str, object] = dict(res.__dict__)
                 if args.pretty:
-                    print(json.dumps(payload, indent=2))
+                    print(json.dumps(res_payload, indent=2))
                 else:
-                    print(json.dumps(payload, separators=(",", ":")))
+                    print(json.dumps(res_payload, separators=(",", ":")))
             code = 2 if res.severity == "block" else (1 if not res.ok else 0)
         if args.verbose and not args.report:
             if args.batch:
