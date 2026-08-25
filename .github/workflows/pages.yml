@@ -15,7 +15,7 @@ jobs:
     if: ${{ vars.PAGES_ENABLED == 'true' || secrets.PAGES_TOKEN != '' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
