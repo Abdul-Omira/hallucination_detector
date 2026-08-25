@@ -29,3 +29,6 @@ rewrite/
 # Do not track internal planning files
 PLAN.md
 AGENTS.md
+
+coverage.xml
+.coverage
